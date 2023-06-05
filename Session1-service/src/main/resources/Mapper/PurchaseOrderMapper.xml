@@ -1,0 +1,42 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yang.session.Mapper.PurchaseOrderMapper">
+
+    <insert id="addOrder">
+        insert into orders(TransactionTypeID,SupplierID,SourceWarehouseID,DestinationWarehouseID,Date) values
+            ((select transactiontypes.ID from transactiontypes where transactiontypes.`Name` = #{transactionName}),
+             (select suppliers.ID from suppliers where suppliers.`Name` = #{suppliersName}),
+             (select warehouses.ID from warehouses where warehouses.`Name` = #{wareHousesName}),
+             NULL,#{date})
+    </insert>
+
+    <insert id="addOrderItems">
+        insert into orderitems(orderitems.OrderID,orderitems.PartID,orderitems.BatchNumber,orderitems.Amount) values
+            ((select max(ID) from orders),
+             (select parts.ID from parts where parts.`Name` = #{partName}),#{batchNumber},#{amount})
+    </insert>
+
+
+    <select id="getPartsName" resultType="java.lang.String">
+        select parts.`Name` from parts
+    </select>
+
+    <select id="getSuppliersName" resultType="java.lang.String">
+        select suppliers.`Name` from suppliers
+    </select>
+
+    <select id="getWarehousesName" resultType="java.lang.String">
+        select warehouses.`Name` from warehouses
+    </select>
+
+    <select id="getOrders" resultType="java.util.Map">
+        select parts.`Name`,orderitems.BatchNumber,orderitems.Amount,'Remove' as 'Action'
+        from parts,orderitems
+        where orderitems.PartID = parts.ID
+    </select>
+
+
+
+</mapper>

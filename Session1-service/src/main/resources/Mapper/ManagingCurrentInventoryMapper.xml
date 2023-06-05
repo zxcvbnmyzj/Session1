@@ -1,0 +1,42 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yang.session.Mapper.ManagingCurrentInventoryMapper">
+
+    <!--java的返回值和数据库字段的映射表-->
+    <resultMap id="orderItem" type="com.yang.session.Pojo.OrderItems">
+        <id column="oid" javaType="java.lang.Integer" property="OId" jdbcType="BIGINT"/>
+        <result column="batchNumber" property="batchNumber"/>
+        <result column="amount" property="amount"/>
+        <association property="order" javaType="com.yang.session.Pojo.Orders">
+            <id column="osId" property="osId"/>
+            <result column="transactionType" javaType="java.lang.String" jdbcType="VARCHAR" property="transactionType"/>
+            <result column="suppliersName" jdbcType="VARCHAR" property="suppliersName"/>
+            <result column="sourceWare" jdbcType="VARCHAR" property="sourceWare"/>
+            <result column="warehouseName" jdbcType="VARCHAR" property="warehouseName"/>
+            <result column="date" property="date"/>
+        </association>
+        <association property="part" javaType="com.yang.session.Pojo.Parts">
+            <id column="pid" property="pid"/>
+            <result column="partName" property="partName"/>
+            <result column="effectiveLife" property="effectiveLife"/>
+            <result column="batchNumberHasRequired" property="batchNumberHasRequired"/>
+            <result column="minimumAmount" property="minimumAmount"/>
+        </association>
+    </resultMap>
+    <select id="getInventory" resultType="java.util.Map">
+        select o.ID oid,os.ID osId,tran.Name transactionType,os.Date date,
+                       sup.Name suppliersName,sour.Name sourceWare,deft.Name warehouseName,part.ID pid,
+                       part.Name partName,part.EffectiveLife effectiveLife,part.BatchNumberHasRequired batchNumberHasRequired,
+                       part.MinimumAmount minimumAmount,BatchNumber batchNumber,Amount amount,'Edit Remove' as 'action'
+                from orders as os right join orderitems o on OrderID = os.ID
+                                  left join parts part on part.ID = PartID
+                                  left join transactiontypes as tran on tran.ID = TransactionTypeID
+                                  left join suppliers as sup on sup.ID = SupplierID
+                                  left outer join warehouses as sour on sour.ID = os.SourceWarehouseID
+                                  left outer join warehouses as deft on deft.ID = os.DestinationWarehouseID
+    </select>
+
+
+</mapper>
